@@ -16,16 +16,23 @@ This is a comprehensive library management system implemented in Python. The sys
 ## Classes:
 
 ### 1. Book
-- Represents a book with attributes like title, author, genre, and availability.
-- Provides methods to display information, add reviews, and calculate average ratings.
+- Represents a book with key attributes: *title*, *author*, *genre*, *total copies*, and *available copies*.
+- Provides a method to display detailed information about the book.
+- Supports adding reviews and calculating average ratings.
 
 ### 2. User
-- Represents a user with attributes like username, hashed_password, and borrowed_log (log of borrowed books).
-- Provides methods for securely handling passwords, displaying the borrowed books log, and managing ratings and reviews.
+- Represents a user with attributes: *username*, *hashed_password*, *books_read*, and *borrowed_log*.
+- Ensures secure password handling through hashing.
+- Manages the display of borrowed book logs and supports rating and reviewing books.
 
 ### 3. Library
-- Manages the collection of books and user accounts.
-- Provides methods for actions such as adding and deleting books, displaying available books, lending and returning books, creating user accounts, forgetting passwords, logging in, and logging out. Admin-specific functionalities are available only to the admin user.
+- Manages the entire system, including collections of books and user accounts.
+- Provides a range of methods for different actions:
+  - Admin-specific functionalities (adding/deleting books) available only to the admin user.
+  - User authentication (create account, forget password, login, logout).
+  - Book-related actions (lending, returning, displaying available books).
+  - User logs management (viewing borrowed books log).
+
 
 ## Usage:
 
