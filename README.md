@@ -1,11 +1,7 @@
-# Library Management System
-
-This is a simple library management system implemented in Python. It allows users to perform various actions such as adding and deleting books, lending and returning books, creating user accounts, and more. The system consists of three main classes: `Book`, `User`, and `Library`.
-
 ## Functionality:
 
 - **Admin Privileges:** Only the admin user can add and delete books.
-- **User Authentication:** Users can create accounts, forget passwords, log in, and log out.
+- **User Authentication:** Users can create accounts, forget passwords, log in, and log out. Passwords are securely hashed using the bcrypt algorithm.
 - **Book Management:** Admin can add and delete books. Users can view available books, lend books, and return books.
 - **User Logs:** Users can view logs of books they have borrowed.
 
@@ -16,8 +12,8 @@ This is a simple library management system implemented in Python. It allows user
 - Provides a method to display information about the book.
 
 ### 2. User
-- Represents a user with attributes like username, password, and borrowed_log (log of borrowed books).
-- Provides methods to display the borrowed books log.
+- Represents a user with attributes like username, hashed_password, and borrowed_log (log of borrowed books).
+- Provides methods to securely handle passwords, display the borrowed books log.
 
 ### 3. Library
 - Manages the collection of books and user accounts.
