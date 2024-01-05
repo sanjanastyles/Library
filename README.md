@@ -2,7 +2,7 @@
 
 - **Admin Privileges:** Only the admin user can add and delete books.
 - **User Authentication:** Users can create accounts, forget passwords, log in, and log out. Passwords are securely hashed using the bcrypt algorithm.
-- **Book Management:** Admin can add and delete books. Users can view available books, lend books, and return books.
+- **Book Management:** Admin can add and delete books. Users can view available books, lend books, and return books. Added search functionality with filters for title, author, and genre.
 - **User Logs:** Users can view logs of books they have borrowed.
 
 ## Classes:
@@ -17,12 +17,12 @@
 
 ### 3. Library
 - Manages the collection of books and user accounts.
-- Provides methods for actions such as adding and deleting books, displaying available books, lending and returning books, creating user accounts, forgetting passwords, logging in, and logging out.
+- Provides methods for actions such as adding and deleting books, displaying available books, lending and returning books, creating user accounts, forgetting passwords, logging in, and logging out. Includes search functionality for books with filters.
 
 ## Usage:
 
 1. Run the script and choose from the menu options.
 2. Admin login is required for adding and deleting books.
-3. Users can create accounts, log in, and perform book-related actions.
+3. Users can create accounts, log in, and perform book-related actions, including searching for books.
 
 Feel free to explore and customize the code for your needs!
