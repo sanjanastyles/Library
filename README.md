@@ -9,7 +9,7 @@ This is a simple library management system implemented in Python. It allows user
 - Provides a method to display information about the book.
 
 ### 2. User
-- Represents a user with attributes like username, password, books_read (books the user has read), and borrowed_log (log of borrowed books).
+- Represents a user with attributes like username, password, and borrowed_log (log of borrowed books).
 - Provides methods to display the books read and the borrowed books log.
 
 ### 3. Library
