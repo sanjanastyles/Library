@@ -1,3 +1,5 @@
+import bcrypt  # Make sure to install the 'bcrypt' module using 'pip install bcrypt'
+
 class Book:
     def __init__(self, title, author, genre):
         self.title = title
@@ -12,7 +14,7 @@ class Book:
 class User:
     def __init__(self, username, password):
         self.username = username
-        self.password = password
+        self.hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         self.books_read = []
         self.borrowed_log = []
 
@@ -39,14 +41,14 @@ class Library:
         user = self.users.get(username)
         if user:
             new_password = input(f"Enter a new password for user '{username}': ")
-            user.password = new_password
+            user.hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
             print(f"Password for user '{username}' has been updated.\n")
         else:
             print(f"User '{username}' not found. Please enter a valid username.\n")
 
     def login(self, username, password):
         user = self.users.get(username)
-        if user and user.password == password:
+        if user and bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
             self.logged_in_user = user
             print(f"User '{username}' has been logged in.\n")
             return user
@@ -77,8 +79,17 @@ class Library:
         else:
             print("Only admin can delete books. Please log in as admin.\n")
 
-    def display_books(self):
-        sorted_books = sorted(self.books, key=lambda x: x.title.lower())
+    def display_books(self, filter_title=None, filter_author=None, filter_genre=None):
+        filtered_books = self.books
+
+        if filter_title:
+            filtered_books = [book for book in filtered_books if filter_title.lower() in book.title.lower()]
+        if filter_author:
+            filtered_books = [book for book in filtered_books if filter_author.lower() in book.author.lower()]
+        if filter_genre:
+            filtered_books = [book for book in filtered_books if filter_genre.lower() in book.genre.lower()]
+
+        sorted_books = sorted(filtered_books, key=lambda x: x.title.lower())
         print("Library Books (Alphabetical Order):")
         for book in sorted_books:
             book.display_info()
@@ -117,16 +128,17 @@ def main():
         print("1. Add a Book (Admin Only)")
         print("2. Delete a Book (Admin Only)")
         print("3. Display Available Books")
-        print("4. Lend a Book")
-        print("5. Return a Book")
-        print("6. Create User Account")
-        print("7. Forget Password")
-        print("8. Login")
-        print("9. Logout")
-        print("10. View Borrowed Books Log")
-        print("11. Exit")
+        print("4. Search for Books")
+        print("5. Lend a Book")
+        print("6. Return a Book")
+        print("7. Create User Account")
+        print("8. Forget Password")
+        print("9. Login")
+        print("10. Logout")
+        print("11. View Borrowed Books Log")
+        print("12. Exit")
 
-        choice = input("Enter your choice (1-11): ")
+        choice = input("Enter your choice (1-12): ")
 
         if choice == "1":
             if library.logged_in_user and library.logged_in_user.username == "admin":
@@ -148,29 +160,35 @@ def main():
             library.display_books()
 
         elif choice == "4":
+            title_filter = input("Enter the title filter (leave blank for no filter): ")
+            author_filter = input("Enter the author filter (leave blank for no filter): ")
+            genre_filter = input("Enter the genre filter (leave blank for no filter): ")
+            library.display_books(filter_title=title_filter, filter_author=author_filter, filter_genre=genre_filter)
+
+        elif choice == "5":
             if library.logged_in_user:
                 title = input("Enter the title of the book to lend: ")
                 library.lend_book(title)
             else:
                 print("Please log in first.\n")
 
-        elif choice == "5":
+        elif choice == "6":
             if library.logged_in_user:
                 title = input("Enter the title of the book to return: ")
                 library.return_book(title)
             else:
                 print("Please log in first.\n")
 
-        elif choice == "6":
+        elif choice == "7":
             username = input("Enter a username for the new account: ")
             password = input("Enter a password for the new account: ")
             library.create_account(username, password)
 
-        elif choice == "7":
+        elif choice == "8":
             username = input("Enter the username for password reset: ")
             library.forget_password(username)
 
-        elif choice == "8":
+        elif choice == "9":
             if not library.logged_in_user:
                 username = input("Enter your username: ")
                 password = input("Enter your password: ")
@@ -178,18 +196,18 @@ def main():
             else:
                 print("You are already logged in. Logout first to log in with a different account.\n")
 
-        elif choice == "9":
+        elif choice == "10":
             library.logout()
 
-        elif choice == "10":
+        elif choice == "11":
             library.view_borrowed_log()
 
-        elif choice == "11":
+        elif choice == "12":
             print("Exiting the Library System. Goodbye!")
             break
 
         else:
-            print("Invalid choice. Please enter a number between 1 and 11.")
+            print("Invalid choice. Please enter a number between 1 and 12.")
 
 if __name__ == "__main__":
     main()
