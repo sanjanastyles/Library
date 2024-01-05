@@ -1,9 +1,12 @@
+# Library Management Project
+
 ## Functionality:
 
-- **Admin Privileges:** Only the admin user can add and delete books.
 - **User Authentication:** Users can create accounts, forget passwords, log in, and log out. Passwords are securely hashed using the bcrypt algorithm.
-- **Book Management:** Admin can add and delete books. Users can view available books, lend books, and return books. Added search functionality with filters for title, author, and genre.
-- **User Logs:** Users can view logs of books they have borrowed.
+- **Basic User Actions:** Users can view available books, lend books, return books, and view logs of borrowed books.
+- **Admin Privileges:** Admin users can add and delete books in addition to basic user actions.
+- **Book Rating and Reviews:** Users can rate books when returning them and leave optional reviews.
+- **Search Functionality:** Users can search for books based on titles, authors, or genres.
 
 ## Classes:
 
@@ -12,17 +15,20 @@
 - Provides a method to display information about the book.
 
 ### 2. User
-- Represents a user with attributes like username, hashed_password, and borrowed_log (log of borrowed books).
-- Provides methods to securely handle passwords, display the borrowed books log.
+- Represents a user with attributes like username, hashed_password, borrowed_log (log of borrowed books), and reviews.
+- Provides methods to securely handle passwords, display the borrowed books log, and store book reviews.
 
 ### 3. Library
 - Manages the collection of books and user accounts.
-- Provides methods for actions such as adding and deleting books, displaying available books, lending and returning books, creating user accounts, forgetting passwords, logging in, and logging out. Includes search functionality for books with filters.
+- Provides methods for actions such as adding and deleting books, displaying available books, lending and returning books, creating user accounts, forgetting passwords, logging in, and logging out.
+- Offers search functionality to find books based on user-defined criteria.
 
 ## Usage:
 
 1. Run the script and choose from the menu options.
-2. Admin login is required for adding and deleting books.
-3. Users can create accounts, log in, and perform book-related actions, including searching for books.
+2. Create a user account or log in.
+3. Explore basic user actions or admin privileges as per your role.
+4. Rate and review books when returning them.
+5. Search for books based on titles, authors, or genres.
 
 Feel free to explore and customize the code for your needs!
