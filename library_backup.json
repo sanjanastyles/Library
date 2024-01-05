@@ -1,0 +1,27 @@
+{
+      "books": {
+            "1": {
+                  "author": "1",
+                  "genre": "1",
+                  "total_copies": 1,
+                  "available_copies": 1
+            }
+      },
+      "logged_in_user": "admin",
+      "users": {
+            "admin": {
+                  "hashed_password": "$2b$12$dJ4/882CgZOMpwPIosZEzOb/lWqajJNaosK1bPnPpvqwXQaYgyGWm",
+                  "security_questions": [
+                        "What is your favorite color?",
+                        "What is the name of your first pet?",
+                        "In which city were you born?"
+                  ],
+                  "security_answers": {
+                        "What is your favorite color?": "1",
+                        "What is the name of your first pet?": "1",
+                        "In which city were you born?": "1"
+                  },
+                  "email": "a@a.com"
+            }
+      }
+}
