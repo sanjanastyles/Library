@@ -8,20 +8,21 @@ class Book:
         self.genre = genre
         self.total_copies = total_copies
         self.available_copies = total_copies
+        self.reviews = []
+        self.rating = 0
 
     def display_info(self):
         print(f"Title: {self.title}\nAuthor: {self.author}\nGenre: {self.genre}\n"
-              f"Total Copies: {self.total_copies}\nAvailable Copies: {self.available_copies}\n")
+              f"Total Copies: {self.total_copies}\nAvailable Copies: {self.available_copies}\n"
+              f"Rating: {self.rating:.2f}\nReviews: {', '.join(self.reviews)}\n")
 
     def add_review(self, review):
         self.reviews.append(review)
         print("Review added. Thank you!\n")
 
-    def calculate_average_rating(self, new_rating):
-        total_rating = self.rating * len(self.reviews)
-        total_rating += new_rating
-        self.rating = total_rating / (len(self.reviews) + 1)
-
+    def add_rating(self, rating):
+        self.rating = (self.rating + rating) / len(self.reviews)
+        print(f"Rating added. Thank you!\n")
 
 class User:
     def __init__(self, username, hashed_password):
@@ -38,10 +39,9 @@ class User:
     def verify_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.hashed_password)
 
-
 class Library:
     def __init__(self):
-        self.books = []
+        self.books = {}
         self.users = {}
         self.logged_in_user = None
 
@@ -57,7 +57,6 @@ class Library:
                 print("Passwords do not match. Please try again.\n")
         else:
             print(f"User '{username}' already exists. Please choose a different username.\n")
-
 
     def forget_password(self, username):
         user = self.users.get(username)
@@ -84,58 +83,64 @@ class Library:
 
     def add_book(self, title, author, genre, total_copies=1):
         if self.logged_in_user and self.logged_in_user.username == "admin":
-            existing_book = next((book for book in self.books if book.title.lower() == title.lower()), None)
+            existing_book = self.books.get(title.lower())
             if existing_book:
                 existing_book.total_copies += total_copies
                 existing_book.available_copies += total_copies
                 print(f"Additional copies of '{title}' added to the library.\n")
             else:
                 new_book = Book(title, author, genre, total_copies)
-                self.books.append(new_book)
+                self.books[title.lower()] = new_book
                 print(f"Book '{title}' added to the library.\n")
         else:
             print("Only admin can add books. Please log in as admin.\n")
 
     def delete_book(self, title):
         if self.logged_in_user and self.logged_in_user.username == "admin":
-            for book in self.books:
-                if book.title.lower() == title.lower():
-                    self.books.remove(book)
-                    print(f"Book '{title}' has been deleted from the library.\n")
-                    return
-            print(f"Book with title '{title}' not found.\n")
+            existing_book = self.books.get(title.lower())
+            if existing_book:
+                del self.books[title.lower()]
+                print(f"Book '{title}' has been deleted from the library.\n")
+            else:
+                print(f"Book with title '{title}' not found.\n")
         else:
             print("Only admin can delete books. Please log in as admin.\n")
 
     def display_books(self):
-        sorted_books = sorted(self.books, key=lambda x: x.title.lower())
+        sorted_books = sorted(self.books.values(), key=lambda x: x.title.lower())
         print("Library Books (Alphabetical Order):")
         for book in sorted_books:
             book.display_info()
 
-
     def lend_book(self, title):
         if self.logged_in_user:
-            for book in self.books:
-                if book.title.lower() == title.lower() and book.available_copies > 0:
-                    book.available_copies -= 1
-                    self.logged_in_user.books_read.append(book.title)
-                    self.logged_in_user.borrowed_log.append(f"Lent '{book.title}'")
-                    print(f"Book '{book.title}' has been lent to {self.logged_in_user.username}.\n")
-                    return
-            print(f"Book with title '{title}' not found or is currently not available.\n")
+            existing_book = self.books.get(title.lower())
+            if existing_book and existing_book.available_copies > 0:
+                existing_book.available_copies -= 1
+                self.logged_in_user.books_read.append(existing_book.title)
+                self.logged_in_user.borrowed_log.append(f"Lent '{existing_book.title}'")
+                print(f"Book '{existing_book.title}' has been lent to {self.logged_in_user.username}.\n")
+            else:
+                print(f"Book with title '{title}' not found or is currently not available.\n")
         else:
             print("Please log in first.\n")
 
-    def return_book(self, title):
+    def return_book(self, title, rating=None, review=None):
         if self.logged_in_user:
-            for book in self.books:
-                if book.title.lower() == title.lower() and book.available_copies < book.total_copies:
-                    book.available_copies += 1
-                    self.logged_in_user.borrowed_log.append(f"Returned '{book.title}'")
-                    print(f"Book '{book.title}' has been returned by {self.logged_in_user.username}.\n")
-                    return
-            print(f"Book with title '{title}' not found or is already available.\n")
+            existing_book = self.books.get(title.lower())
+            if existing_book and existing_book.available_copies < existing_book.total_copies:
+                existing_book.available_copies += 1
+                self.logged_in_user.borrowed_log.append(f"Returned '{existing_book.title}'")
+                print(f"Book '{existing_book.title}' has been returned by {self.logged_in_user.username}.\n")
+                
+                if rating and 1 <= rating <= 5:
+                    existing_book.add_rating(rating)
+
+                if review:
+                    existing_book.add_review(review)
+
+            else:
+                print(f"Book with title '{title}' not found or is already available.\n")
         else:
             print("Please log in first.\n")
 
@@ -148,7 +153,7 @@ class Library:
     def search_books(self, keyword, filter_option):
         filtered_books = []
 
-        for book in self.books:
+        for book in self.books.values():
             match_found = False
 
             if filter_option == 1:  # Title filter
@@ -176,15 +181,17 @@ def main():
             print("2. Login")
         else:
             print("3. Add a Book (Admin Only)")
-            print("4. Display Available Books")
-            print("5. Lend a Book")
-            print("6. Return a Book")
-            print("7. Forget Password")
-            print("8. Logout")
-            print("9. View Borrowed Books Log")
-        print("10. Exit")
+            print("4. Delete a Book (Admin Only)")
+            print("5. Display Available Books")
+            print("6. Lend a Book")
+            print("7. Return a Book")
+            print("8. Forget Password")
+            print("9. Logout")
+            print("10. View Borrowed Books Log")
+        print("11. Search Books")
+        print("12. Exit")
 
-        choice = input("Enter your choice (1-10): ")
+        choice = input("Enter your choice (1-12): ")
 
         if choice == "1" and not library.logged_in_user:
             username = input("Enter a username for the new account: ")
@@ -196,7 +203,6 @@ def main():
             password = getpass("Enter your password: ")
             user = library.login(username, password)
 
-
         elif choice == "3" and library.logged_in_user and library.logged_in_user.username == "admin":
             title = input("Enter the title of the book: ")
             author = input("Enter the author of the book: ")
@@ -204,39 +210,54 @@ def main():
             total_copies = int(input("Enter the total number of copies: "))
             library.add_book(title, author, genre, total_copies)
 
-        elif choice == "4":
-            library.display_books()
+        elif choice == "4" and library.logged_in_user and library.logged_in_user.username == "admin":
+            title = input("Enter the title of the book to delete: ")
+            library.delete_book(title)
 
         elif choice == "5":
+            library.display_books()
+
+        elif choice == "6":
             if library.logged_in_user:
                 title = input("Enter the title of the book to lend: ")
                 library.lend_book(title)
             else:
                 print("Please log in first.\n")
 
-        elif choice == "6":
+        elif choice == "7":
             if library.logged_in_user:
                 title = input("Enter the title of the book to return: ")
-                library.return_book(title)
+                rating = input("Enter a rating (1-5) for the book (press Enter to skip): ")
+                review = input("Enter a review for the book (press Enter to skip): ")
+                rating = int(rating) if rating.isdigit() else None
+                library.return_book(title, rating, review)
             else:
                 print("Please log in first.\n")
 
-        elif choice == "7" and library.logged_in_user:
+        elif choice == "8" and library.logged_in_user:
             username = input("Enter the username for password reset: ")
             library.forget_password(username)
 
-        elif choice == "8" and library.logged_in_user:
+        elif choice == "9" and library.logged_in_user:
             library.logout()
 
-        elif choice == "9" and library.logged_in_user:
+        elif choice == "10" and library.logged_in_user:
             library.view_borrowed_log()
 
-        elif choice == "10":
+        elif choice == "11":
+            keyword = input("Enter a keyword to search for: ")
+            filter_option = int(input("Choose a filter option (1. Title, 2. Author, 3. Genre): "))
+            search_results = library.search_books(keyword, filter_option)
+            print("\nSearch Results:")
+            for result in search_results:
+                result.display_info()
+
+        elif choice == "12":
             print("Exiting the Library System. Goodbye!")
             break
 
         else:
-            print("Invalid choice. Please enter a number between 1 and 10.")
+            print("Invalid choice. Please enter a number between 1 and 12.")
 
 if __name__ == "__main__":
     main()
