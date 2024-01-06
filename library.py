@@ -7,6 +7,19 @@ from datetime import datetime, timedelta
 import re
 
 
+
+
+def is_float(element: any) -> bool:
+
+    if element is None: 
+        return False
+    try:
+        float(element)
+        return True
+    except ValueError:
+        return False
+    
+    
 class Book:
     def __init__(self, title, author, genre, total_copies=1):
         self.title = title
@@ -210,7 +223,8 @@ class Library:
         for book in sorted_books:
             print(f"Title: {book.title}\nAuthor: {book.author}\nGenre: {book.genre}\n"
                   f"Total Copies: {book.total_copies}\nAvailable Copies: {book.available_copies}\n"
-                  f"Rating: {book.rating:.2f}\nReviews: {', '.join(book.reviews)}\n")
+                 f"Rating: {book.rating}\nReviews: {', '.join(map(str, book.reviews))}\n")
+
 
     def lend_book(self, title):
         if self.logged_in_user:
@@ -386,8 +400,10 @@ def main():
                 title = input("Enter the title of the book to return: ")
                 rating = input("Enter a rating (1-5) for the book (press Enter to skip): ")
                 review = input("Enter a review for the book (press Enter to skip): ")
-                rating = float(rating) if rating.isdigit() else None
-                library.return_book(title, rating, review)
+                if rating.isdigit() or is_float(rating):
+                    library.return_book(title, rating, review)
+                else:
+                    print("Please Enter Correct Review orSome message.\n")
             else:
                 print("Please log in first.\n")
 
