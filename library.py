@@ -20,15 +20,20 @@ class Book:
     def display_info(self):
         print(f"Title: {self.title}\nAuthor: {self.author}\nGenre: {self.genre}\n"
               f"Total Copies: {self.total_copies}\nAvailable Copies: {self.available_copies}\n"
-              f"Rating: {self.rating:.2f}\nReviews: {', '.join(self.reviews)}\n")
+              f"Rating: {self.rating:.2f}\nReviews: {', '.join(map(str, self.reviews))}\n")
 
     def add_review(self, review):
         self.reviews.append(review)
         print("Review added. Thank you!\n")
 
     def add_rating(self, rating):
-        self.rating = (self.rating + rating) / len(self.reviews)
-        print(f"Rating added. Thank you!\n")
+        if isinstance(rating, (int, float)) and 1.0 <= rating <= 5.0:
+            self.reviews.append(rating)
+            self.rating = sum(self.reviews) / len(self.reviews)
+            print(f"Rating of {rating} added. Thank you!\n")
+        else:
+            print("Invalid rating. Please enter a number between 1 and 5.")
+
 
 
 class User:
@@ -199,11 +204,14 @@ class Library:
         else:
             print("Only admin can delete books. Please log in as admin.\n")
 
+
     def display_books(self):
         sorted_books = sorted(self.books.values(), key=lambda x: x.title.lower())
         print("Library Books (Alphabetical Order):")
         for book in sorted_books:
-            book.display_info()
+            print(f"Title: {book.title}\nAuthor: {book.author}\nGenre: {book.genre}\n"
+                  f"Total Copies: {book.total_copies}\nAvailable Copies: {book.available_copies}\n"
+                  f"Rating: {book.rating:.2f}\nReviews: {', '.join(book.reviews)}\n")
 
     def lend_book(self, title):
         if self.logged_in_user:
@@ -220,23 +228,36 @@ class Library:
     def return_book(self, title, rating=None, review=None):
         if self.logged_in_user:
             existing_book = self.books.get(title.lower())
-            if existing_book and existing_book.available_copies < existing_book.total_copies:
-                existing_book.available_copies += 1
+            if existing_book:
                 self.logged_in_user.borrowed_log.append(f"Returned '{existing_book.title}'")
                 print(f"Book '{existing_book.title}' has been returned by {self.logged_in_user.username}.\n")
 
-                if rating and 1 <= rating <= 5:
-                    existing_book.add_rating(rating)
+                if rating is not None:
+                    try:
+                        rating = float(rating)
+                        if 1.0 <= rating <= 5.0:
+                            existing_book.add_rating(rating)
+                        else:
+                            raise ValueError("Invalid rating. Please enter a number between 1 and 5.")
+                    except ValueError as e:
+                        print(str(e))
                 else:
-                    print("Invalid rating. Please enter a number between 1 and 5.")
+                    print("No rating provided. Rating skipped.")
 
                 if review:
                     existing_book.add_review(review)
+                else:
+                    print("No review provided. Review skipped.\n")
 
+                existing_book.available_copies += 1  # Update available copies
             else:
                 print(f"Book with title '{title}' not found or is already available.\n")
         else:
             print("Please log in first.\n")
+
+
+
+
 
     def view_borrowed_log(self):
         if self.logged_in_user:
@@ -365,11 +386,11 @@ def main():
                 print("Please log in first.\n")
 
         elif choice == "8":
-            if library.logged_in_user:
+            if library.logged_in_user: 
                 title = input("Enter the title of the book to return: ")
                 rating = input("Enter a rating (1-5) for the book (press Enter to skip): ")
                 review = input("Enter a review for the book (press Enter to skip): ")
-                rating = int(rating) if rating.isdigit() else None # Convert the user input for rating to an integer if it is a digit, otherwise set it to None
+                rating = float(rating) if rating.isdigit() else None
                 library.return_book(title, rating, review)
             else:
                 print("Please log in first.\n")
