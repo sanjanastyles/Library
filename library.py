@@ -74,7 +74,6 @@ class User:
             print(f"User '{self.username}' does not have a registered email.\n")
 
     def send_reset_email(self):
-        # TODO: Implement email sending mechanism with reset link or code
         # For simplicity, print the reset code in the console
         print(f"Reset code for {self.username}: {self.reset_code}")
 
@@ -254,9 +253,6 @@ class Library:
                 print(f"Book with title '{title}' not found or is already available.\n")
         else:
             print("Please log in first.\n")
-
-
-
 
 
     def view_borrowed_log(self):
@@ -442,3 +438,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+"""
+
+TODO: 
+Implement email sending mechanism with reset link or code
+Usermanagement = Delete account and change password (inside an option "Manage account")
+
+"""
