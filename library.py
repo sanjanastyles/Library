@@ -4,6 +4,7 @@ import json
 import random
 import string
 from datetime import datetime, timedelta
+import re
 
 
 class Book:
@@ -105,6 +106,10 @@ class Library:
         self.logged_in_user = None
 
     def create_account(self, username, password, email):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            print("Invalid email format. Please enter a valid email address.\n")
+            return
+        
         if username not in self.users:
             confirm_password = getpass("Confirm password for the new account: ")
 
@@ -320,6 +325,12 @@ def main():
         if choice == "1" and not library.logged_in_user:
             username = input("Enter a username for the new account: ")
             email = input("Enter your email address: ")
+
+            # Validate email format
+            if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+                print("Invalid email format. Please enter a valid email address.\n")
+                continue  # Restart the loop if the email format is invalid
+
             password = getpass("Enter a password for the new account: ")
             library.create_account(username, password, email)
 
