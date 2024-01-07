@@ -70,6 +70,14 @@ class User:
         self.reset_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         self.reset_code_expiry = datetime.now() + timedelta(minutes=15)
 
+
+    def change_password(self, current_password, new_password):
+        if self.verify_password(current_password):
+            self.hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            print(f"Password for user '{self.username}' has been changed.\n")
+        else:
+            print("Current password is incorrect. Password change failed.\n")
+
     def reset_password(self, new_password):
         self.hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
         self.reset_code = None
@@ -120,6 +128,20 @@ class Library:
         self.books = {}
         self.users = {}
         self.logged_in_user = None
+
+
+    def delete_account(self):
+        if self.logged_in_user:
+            confirm_choice = input("Are you sure you want to delete your account? (yes/no): ").lower()
+            if confirm_choice == "yes":
+                deleted_username = self.logged_in_user.username  # Store the username before deleting the user
+                del self.users[deleted_username]
+                self.logout()
+                print(f"Account for user '{deleted_username}' has been deleted.\n")
+            else:
+                print("Account deletion canceled.\n")
+        else:
+            print("Please log in first.\n")
 
     def create_account(self, username, password, email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
@@ -350,6 +372,7 @@ def main():
                 print("5. Delete a Book (Admin Only)")
                 print("12. Backup Data")
                 print("13. Restore Backup Data (Admin Only)")
+              
         print("Library System Menu:")
         if not library.logged_in_user:
             print("1. Create User Account")
@@ -361,10 +384,13 @@ def main():
             print("8. Return a Book")
             print("9. Logout")
             print("10. View Borrowed Books Log")
+            print("15. Change Password")
+            print("16. Delete Account")
         print("11. Search Books")
         print("14. Exit")
+        
 
-        choice = input("Enter your choice (1-14): ")
+        choice = input("Enter your choice (1-16): ")
 
         if choice == "1" and not library.logged_in_user:
             username = input("Enter a username for the new account: ")
@@ -460,6 +486,22 @@ def main():
 
         elif choice == "14":
             print("Exiting the Library System. Goodbye!")
+            break
+        
+        elif choice == "15":
+            current_password = getpass("Enter your current password: ")
+            new_password = getpass("Enter a new password: ")
+    
+             # Check if the user is logged in before attempting to change the password
+            if library.logged_in_user:
+                library.logged_in_user.change_password(current_password, new_password)
+            else:
+                print("Please log in first.\n")
+            break
+        
+        elif choice == "16":
+            print("Delete Account!")
+            library.delete_account()
             break
 
         else:
