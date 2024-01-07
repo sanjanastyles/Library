@@ -18,8 +18,7 @@ def is_float(element: any) -> bool:
         return True
     except ValueError:
         return False
-    
-    
+       
 class Book:
     def __init__(self, title, author, genre, total_copies=1):
         self.title = title
@@ -46,8 +45,6 @@ class Book:
             print(f"Rating of {rating} added. Thank you!\n")
         else:
             print("Invalid rating. Please enter a number between 1 and 5.")
-
-
 
 class User:
     def __init__(self, username, hashed_password, security_questions=None, security_answers=None, email=None):
@@ -114,7 +111,6 @@ class User:
 
         new_password = getpass("Enter a new password for your account: ")
         self.reset_password(new_password)
-
 
 class Library:
     def __init__(self):
@@ -297,12 +293,27 @@ class Library:
         # Prepare data to be stored in the backup file
         data = {
             "books": {title: {"author": book.author, "genre": book.genre, "total_copies": book.total_copies, "available_copies": book.available_copies} for title, book in self.books.items()},
+            "logged_in_user": self.logged_in_user.username if self.logged_in_user else None,
             "users": {username: {"hashed_password": user.hashed_password, "security_questions": user.security_questions, "security_answers": user.security_answers, "email": user.email} for username, user in self.users.items()},
-            "logged_in_user": self.logged_in_user.username if self.logged_in_user else None
         }
+
+        # Convert bytes to a serializable type (e.g., using decode('utf-8'))
+        data = self.convert_bytes_to_serializable(data)
+
         with open(filename, 'w') as file:
-            json.dump(data, file)
+            json.dump(data, file, indent=6)
         print(f"Data backed up to {filename}.\n")
+
+    def convert_bytes_to_serializable(self, data):
+        for key, value in data.items():
+            if isinstance(value, bytes):
+                # Convert bytes to a string or another serializable type
+                data[key] = value.decode('utf-8')
+            elif isinstance(value, dict):
+                # Recursively handle nested dictionaries
+                data[key] = self.convert_bytes_to_serializable(value)
+        return data
+
 
     def restore_data(self, filename="library_backup.json"):
         try:
@@ -322,7 +333,6 @@ class Library:
                 print(f"Data restored from {filename}.\n")
         except FileNotFoundError:
             print(f"No backup file '{filename}' found.\n")  # Handle the case where the backup file is not found
-
 
 def main():
     library = Library()
@@ -455,10 +465,12 @@ def main():
 if __name__ == "__main__":
     main()
 
+
 """
 
 TODO: 
 Implement email sending mechanism with reset link or code
 Usermanagement = Delete account and change password (inside an option "Manage account")
+backup
 
 """
