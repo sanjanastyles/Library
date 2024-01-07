@@ -5,6 +5,7 @@ import random
 import string
 from datetime import datetime, timedelta
 import re
+from utils import send_email
 
 
 
@@ -85,7 +86,9 @@ class User:
 
     def send_reset_email(self):
         # For simplicity, print the reset code in the console
+        send_email()
         print(f"Reset code for {self.username}: {self.reset_code}")
+
 
     def initiate_password_reset_security_questions(self):
         if self.security_questions and self.security_answers:
