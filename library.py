@@ -60,7 +60,6 @@ class User:
         self.wrong_attempts = 0
         self.cooldown_end_time = None
 
-
     def display_borrowed_log(self):
         print(f"{self.username}'s Borrowed Books Log:")
         for log in self.borrowed_log:
