@@ -57,6 +57,8 @@ class User:
         self.reset_code = None
         self.reset_code_expiry = None
         self.borrowed_log = []
+        self.wrong_attempts = 0
+        self.cooldown_end_time = None
 
     def display_borrowed_log(self):
         print(f"{self.username}'s Borrowed Books Log:")
@@ -200,12 +202,30 @@ class Library:
 
     def login(self, username, password):
         user = self.users.get(username)
+        
+        # Check if the user is in cooldown period
+        if user and user.cooldown_end_time and datetime.now() < user.cooldown_end_time:
+            print(f"Account is in cooldown. Please try again after {int((user.cooldown_end_time - datetime.now()).total_seconds())} seconds.\n")
+            return None
+
         if user and bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
+            user.wrong_attempts = 0  # Reset wrong attempts upon successful login
             self.logged_in_user = user
             print(f"User '{username}' has been logged in.\n")
             return user
         else:
-            print("Invalid username or password. Please try again.\n")
+            if user:
+                user.wrong_attempts += 1
+                print("Invalid username or password. Please try again.\n")
+
+                # Check if the user has reached the maximum wrong attempts
+                if user.wrong_attempts >= 3:
+                    cooldown_duration = 60  # 1 minute cooldown
+                    user.cooldown_end_time = datetime.now() + timedelta(seconds=cooldown_duration)
+                    print(f"Too many wrong attempts. Account is now in cooldown for {cooldown_duration} seconds.\n")
+            else:
+                print("Invalid username or password. Please try again.\n")
+
             return None
 
     def logout(self):
